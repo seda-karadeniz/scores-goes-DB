@@ -1,58 +1,46 @@
 <?php
 
-use function Team\all as teamAll;
+use function Match\allWithTeams as allMatchesWithTeams;
+use function Match\allWithTeamsGrouped as allMatchesWithTeamsGrouped;
+use function Team\all as allTeam;
 
 require('./configs/config.php');
 require('./utils/dbaccess.php');
+require ('./utils/standings.php');
 require('./models/team.php');
 require('./models/match.php');
 
 $pdo = getConnection();
 
-define('TODAY', (new DateTime('now', new DateTimeZone('Europe/Brussels')))->format('M jS, Y'));
-define('FILE_PATH', 'matches.csv');
 $standings = [];
 
-$matches = [];
-$teams = teamAll($pdo);
+$matches2 = allMatchesWithTeamsGrouped(allMatchesWithTeams($pdo));
+$teams = allTeam($pdo);
 
-function getEmptyStatsArray()
-{
-    return [
-        'games' => 0,
-        'points' => 0,
-        'wins' => 0,
-        'losses' => 0,
-        'draws' => 0,
-        'GF' => 0,
-        'GA' => 0,
-        'GD' => 0,
-    ];
-}
 
+/*
 $handle = fopen(FILE_PATH, 'r');
-$headers = fgetcsv($handle, 1000);
+$headers = fgetcsv($handle, 1000);*/
+foreach ($matches2 as $match){
 
-while ($line = fgetcsv($handle, 1000)) {
-    $match = array_combine($headers, $line);
-    $matches[] = $match;
-    $homeTeam = $match['home-team'];
-    $awayTeam = $match['away-team'];
+    $homeTeam = $match->home_team;
+    $awayTeam = $match->away_team;
     if (!array_key_exists($homeTeam, $standings)) {
         $standings[$homeTeam] = getEmptyStatsArray();
     }
     if (!array_key_exists($awayTeam, $standings)) {
         $standings[$awayTeam] = getEmptyStatsArray();
     }
+
     $standings[$homeTeam]['games']++;
     $standings[$awayTeam]['games']++;
 
-    if ($match['home-team-goals'] === $match['away-team-goals']) {
+    if ($match->home_team_goals === $match->away_team_goals) {
         $standings[$homeTeam]['points']++;
         $standings[$awayTeam]['points']++;
         $standings[$homeTeam]['draws']++;
         $standings[$awayTeam]['draws']++;
-    } elseif ($match['home-team-goals'] > $match['away-team-goals']) {
+    } elseif ($match->home_team_goals > $match->away_team_goals) {
         $standings[$homeTeam]['points'] += 3;
         $standings[$homeTeam]['wins']++;
         $standings[$awayTeam]['losses']++;
@@ -61,14 +49,18 @@ while ($line = fgetcsv($handle, 1000)) {
         $standings[$awayTeam]['wins']++;
         $standings[$homeTeam]['losses']++;
     }
-    $standings[$homeTeam]['GF'] += $match['home-team-goals'];
-    $standings[$homeTeam]['GA'] += $match['away-team-goals'];
-    $standings[$awayTeam]['GF'] += $match['away-team-goals'];
-    $standings[$awayTeam]['GA'] += $match['home-team-goals'];
+    $standings[$homeTeam]['GF'] += $match->home_team_goals;
+    $standings[$homeTeam]['GA'] += $match->away_team_goals;
+    $standings[$awayTeam]['GF'] += $match->away_team_goals;
+    $standings[$awayTeam]['GA'] += $match->home_team_goals;
     $standings[$homeTeam]['GD'] = $standings[$homeTeam]['GF'] - $standings[$homeTeam]['GA'];
     $standings[$awayTeam]['GD'] = $standings[$awayTeam]['GF'] - $standings[$awayTeam]['GA'];
 
+
 }
+
+
+
 
 uasort($standings, function ($a, $b) {
     if ($a['points'] === $b['points']) {
