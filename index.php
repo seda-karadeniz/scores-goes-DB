@@ -2,7 +2,8 @@
 
 use function Match\allWithTeams as allMatchesWithTeams;
 use function Match\allWithTeamsGrouped as allMatchesWithTeamsGrouped;
-use function Team\all as allTeam;
+use function Match\save as saveMatch;
+use function Team\all as allTeams;
 
 require('./configs/config.php');
 require('./utils/dbaccess.php');
@@ -13,40 +14,39 @@ require('./models/match.php');
 $pdo = getConnection();
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && isset($_POST['resource'])) {
         if ($_POST['action'] === 'store' && $_POST['resource'] === 'match') {
             $matchDate = $_POST['match-date'];
-            $homeTeam = $_POST['home-team-unlisted'] === '' ? $_POST['home-team'] : $_POST['home-team-unlisted'];
-            $awayTeam = $_POST['away-team-unlisted'] === '' ? $_POST['away-team'] : $_POST['away-team-unlisted'];
+            $homeTeam = $_POST['home-team'];
+            $awayTeam = $_POST['away-team'];
             $homeTeamGoals = $_POST['home-team-goals'];
             $awayTeamGoals = $_POST['away-team-goals'];
 
-            $match = [$matchDate, $homeTeam, $homeTeamGoals, $awayTeamGoals, $awayTeam];
+            $match = [
+                'date' => $matchDate,
+                'home-team' => $homeTeam,
+                'home-team-goals' => $homeTeamGoals,
+                'away-team-goals' => $awayTeamGoals,
+                'away-team' => $awayTeam
+            ];
 
-            //ajouter dans la db
+            saveMatch($pdo, $match);
+            header('Location: index.php');
+            exit();
         }
     }
-
 }
 
-elseif ($_SERVER['REQUEST_METHOD']=== 'GET'){
-   // traiter les truc en get
-    if (!isset($_GET['action']) && !isset($_GET['resource'])){
-//homepage
+elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (!isset($_GET['action']) && !isset($_GET['resource'])) {
+        // Home page
         $standings = [];
-
         $matches2 = allMatchesWithTeamsGrouped(allMatchesWithTeams($pdo));
-        $teams = allTeam($pdo);
+        $teams = allTeams($pdo);
 
 
-        /*
-        $handle = fopen(FILE_PATH, 'r');
-        $headers = fgetcsv($handle, 1000);*/
-        foreach ($matches2 as $match){
-
+        foreach ($matches2 as $match) {
             $homeTeam = $match->home_team;
             $awayTeam = $match->away_team;
             if (!array_key_exists($homeTeam, $standings)) {
@@ -55,7 +55,6 @@ elseif ($_SERVER['REQUEST_METHOD']=== 'GET'){
             if (!array_key_exists($awayTeam, $standings)) {
                 $standings[$awayTeam] = getEmptyStatsArray();
             }
-
             $standings[$homeTeam]['games']++;
             $standings[$awayTeam]['games']++;
 
@@ -74,27 +73,23 @@ elseif ($_SERVER['REQUEST_METHOD']=== 'GET'){
                 $standings[$homeTeam]['losses']++;
             }
             $standings[$homeTeam]['GF'] += $match->home_team_goals;
-            $standings[$homeTeam]['GA'] += $match->away_team_goals;
+            $standings[$homeTeam]['GA'] += $match->home_team_goals;
+            $standings[$awayTeam]['GA'] += $match->away_team_goals;
             $standings[$awayTeam]['GF'] += $match->away_team_goals;
-            $standings[$awayTeam]['GA'] += $match->home_team_goals;
             $standings[$homeTeam]['GD'] = $standings[$homeTeam]['GF'] - $standings[$homeTeam]['GA'];
             $standings[$awayTeam]['GD'] = $standings[$awayTeam]['GF'] - $standings[$awayTeam]['GA'];
 
-
         }
+
         uasort($standings, function ($a, $b) {
             if ($a['points'] === $b['points']) {
                 return 0;
             }
             return $a['points'] > $b['points'] ? -1 : 1;
         });
-
-
-
     }
-}
-else{
-    header('Location: index.php'); /*rediriger vers la page d'accueil*/
+} else {
+    header('Location: index.php');
     exit();
 }
 

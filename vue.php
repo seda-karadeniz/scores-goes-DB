@@ -6,6 +6,7 @@
 </head>
 <body>
 <h1>Premier League 2020</h1>
+<?php if(count($standings)):?>
 <section>
     <h2>Standings</h2>
     <table>
@@ -43,16 +44,18 @@
         </tbody>
     </table>
 </section>
+<?php endif;?>
 <section>
-    <h2>Games played at <?= TODAY ?></h2>
+    <h2>Matchs joués au <?= TODAY ?></h2>
+    <?php if (count($matches2)): ?>
     <table>
         <thead>
         <tr>
             <th>Date</th>
-            <th>Home Team</th>
-            <th>Home Team Goals</th>
-            <th>Away Team Goals</th>
-            <th>Away Team</th>
+            <th>équipe visité</th>
+            <th>goals équipe visité</th>
+            <th>goals équipe visiteuse</th>
+            <th>équipe visiteuse</th>
         </tr>
         </thead>
         <tbody>
@@ -67,6 +70,9 @@
         <?php endforeach; ?>
         </tbody>
     </table>
+    <?php else: ?>
+    <p>Aucun match n'a été joué à ce jour</p>
+    <?php endif; ?>
 </section>
 <section>
     <h2>Encodage d’un nouveau match</h2>
