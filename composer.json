@@ -1,0 +1,17 @@
+{
+    "name": "sty/scores-goes-db",
+    "require": {
+        "nesbot/carbon": "^2.52"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sty\\ScoresGoesDb\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "seda-karadeniz",
+            "email": "sedayo98@gmail.com"
+        }
+    ]
+}
