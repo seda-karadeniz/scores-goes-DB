@@ -1,9 +1,10 @@
 <?php
 
-use function Match\allWithTeams as allMatchesWithTeams;
-use function Match\allWithTeamsGrouped as allMatchesWithTeamsGrouped;
-use function Match\save as saveMatch;
-use function Team\all as allTeams;
+use function Models\Match\allWithTeams as allMatchesWithTeams;
+use function Models\Match\allWithTeamsGrouped as allMatchesWithTeamsGrouped;
+use function Models\Match\save as saveMatch;
+use function Models\Team\all as allTeams;
+use function Controllers\Match\strore as stroreMatch;
 
 require ('./vendor/autoload.php');
 
@@ -12,6 +13,8 @@ require('./utils/dbaccess.php');
 require ('./utils/standings.php');
 require('./models/team.php');
 require('./models/match.php');
+require('./controllers/match.php');
+
 
 $pdo = getConnection();
 
@@ -19,23 +22,7 @@ $pdo = getConnection();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && isset($_POST['resource'])) {
         if ($_POST['action'] === 'store' && $_POST['resource'] === 'match') {
-            $matchDate = $_POST['match-date'];
-            $homeTeam = $_POST['home-team'];
-            $awayTeam = $_POST['away-team'];
-            $homeTeamGoals = $_POST['home-team-goals'];
-            $awayTeamGoals = $_POST['away-team-goals'];
-
-            $match = [
-                'date' => $matchDate,
-                'home-team' => $homeTeam,
-                'home-team-goals' => $homeTeamGoals,
-                'away-team-goals' => $awayTeamGoals,
-                'away-team' => $awayTeam
-            ];
-
-            saveMatch($pdo, $match);
-            header('Location: index.php');
-            exit();
+            stroreMatch($pdo);
         }
     }
 }

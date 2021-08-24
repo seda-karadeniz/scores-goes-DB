@@ -1,5 +1,5 @@
 <?php
-namespace Team;
+namespace Models\Team;
 
 function all(\PDO $connection): array /*mettre lanti slash car recherche pdo dans lespace de nom or il doit le rechercher dans la racine*/
 {
