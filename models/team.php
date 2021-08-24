@@ -27,3 +27,9 @@ function findByName(\PDO $connection, string $name): \stdClass
 
     return $pdoSt->fetch();
 }
+function save(\PDO $connection, array $team)
+{
+    $insertTeamRequest = 'INSERT INTO teams(`name`, `slug`) VALUES (:name, :slug)';
+    $pdoSt = $connection->prepare($insertTeamRequest);
+    $pdoSt->execute([':name' => $team['name'], ':slug' => $team['slug']]);
+}

@@ -2,9 +2,9 @@
 
 use function Models\Match\allWithTeams as allMatchesWithTeams;
 use function Models\Match\allWithTeamsGrouped as allMatchesWithTeamsGrouped;
-use function Models\Match\save as saveMatch;
 use function Models\Team\all as allTeams;
 use function Controllers\Match\strore as stroreMatch;
+use function Controllers\Team\strore as stroreTeam;
 
 require ('./vendor/autoload.php');
 
@@ -14,6 +14,7 @@ require ('./utils/standings.php');
 require('./models/team.php');
 require('./models/match.php');
 require('./controllers/match.php');
+require('./controllers/team.php');
 
 
 $pdo = getConnection();
@@ -23,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && isset($_POST['resource'])) {
         if ($_POST['action'] === 'store' && $_POST['resource'] === 'match') {
             stroreMatch($pdo);
+        }elseif($_POST['action'] === 'store' && $_POST['resource'] === 'team'){
+            stroreTeam($pdo);
         }
     }
 }
