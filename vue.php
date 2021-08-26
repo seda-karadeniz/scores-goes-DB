@@ -47,7 +47,7 @@
 <?php endif;?>
 <section>
     <h2>Matchs joués au <?= TODAY ?></h2>
-    <?php if (count($matches2)): ?>
+    <?php if (count($matches)): ?>
     <table>
         <thead>
         <tr>
@@ -59,7 +59,7 @@
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($matches2 as $match): ?>
+        <?php foreach ($matches as $match): ?>
             <tr>
                 <td><?= ($match->match_date)->format('M l jS, Y') ?></td>
                 <td><?= $match->home_team ?></td>
