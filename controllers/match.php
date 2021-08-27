@@ -1,7 +1,7 @@
 <?php
 namespace Controllers\Match;
 
-use function Models\Match\save as saveMatch;
+use function Models\Match\save;
 
 require('./models/match.php');
 
@@ -23,7 +23,7 @@ function strore(\PDO $pdo): void
         'away-team' => $awayTeam
     ];
 
-    saveMatch($pdo, $match);
+    save($pdo, $match);
     header('Location: index.php');
     exit();
 }
